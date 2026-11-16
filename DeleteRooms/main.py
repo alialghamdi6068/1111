@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import sys
+from typing import Dict, Optional
 
 import discord
 from discord import app_commands
@@ -41,7 +42,7 @@ bot = DeleteRoomsBot(
 )
 
 # Prevent two confirmed wipe operations from running simultaneously in one guild.
-guild_locks: dict[int, asyncio.Lock] = {}
+guild_locks: Dict[int, asyncio.Lock] = {}
 
 
 class ConfirmationView(discord.ui.View):
@@ -49,7 +50,7 @@ class ConfirmationView(discord.ui.View):
         super().__init__(timeout=CONFIRMATION_TIMEOUT)
         self.user_id = user_id
         self.confirmed = False
-        self.message: discord.Message | None = None
+        self.message: Optional[discord.Message] = None
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.user_id:
