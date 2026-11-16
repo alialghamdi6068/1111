@@ -72,15 +72,6 @@ async def request_confirmation(
 async def delete_server_content(guild: discord.Guild, requested_by: discord.abc.User):
     """Delete manageable channels and roles, preserving Discord-managed roles."""
     channels = list(guild.channels)
-    roles = [
-        role
-        for role in guild.roles
-        if role.id != guild.id
-        and not role.is_default()
-        and not role.managed
-        and role < guild.me.top_role
-    ]
-
     deleted_channels = 0
     failed_channels = 0
     deleted_roles = 0
@@ -130,13 +121,11 @@ async def delete_server_content(guild: discord.Guild, requested_by: discord.abc.
 
 
 @bot.event
-async def setup_hook():
-    synced = await bot.tree.sync()
-    logger.info("Registered %s global slash command(s).", len(synced))
-
-
-@bot.event
 async def on_ready():
+    if not getattr(bot, "_slash_commands_synced", False):
+        synced = await bot.tree.sync()
+        bot._slash_commands_synced = True
+        logger.info("Registered %s global slash command(s).", len(synced))
     logger.info("Connected as %s (ID: %s)", bot.user, bot.user.id)
 
 
